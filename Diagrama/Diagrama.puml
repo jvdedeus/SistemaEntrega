@@ -1,0 +1,102 @@
+@startuml
+!theme toy
+
+' Define as classes
+
+abstract class PedidoEstado {
+    # PedidoEstado proximoEstadoNaCadeia
+    + {abstract} String getEstado()
+    + void setProximoEstadoNaCadeia(PedidoEstado proximoEstado)
+    + String Processamento(Pedido pedido)
+    + String processar(Pedido pedido)
+    + String preparar(Pedido pedido)
+    + String transportar(Pedido pedido)
+    + String entregue(Pedido pedido)
+}
+
+class PedidoEmProcesso {
+    - static PedidoEmProcesso instance
+    - PedidoEmProcesso()
+    + static PedidoEmProcesso getInstance()
+    + String getEstado()
+    + String Processamento(Pedido pedido)
+    + String preparar(Pedido pedido)
+}
+
+class PedidoEmPreparo {
+    - static PedidoEmPreparo instance
+    - PedidoEmPreparo()
+    + static PedidoEmPreparo getInstance()
+    + String getEstado()
+    + String Processamento(Pedido pedido)
+    + String transportar(Pedido pedido)
+}
+
+class PedidoEmTransporte {
+    - static PedidoEmTransporte instance
+    - PedidoEmTransporte()
+    + static PedidoEmTransporte getInstance()
+    + String getEstado()
+    + String Processamento(Pedido pedido)
+    + String entregue(Pedido pedido)
+}
+
+class PedidoEntregue {
+    - static PedidoEntregue instance
+    - PedidoEntregue()
+    + static PedidoEntregue getInstance()
+    + String getEstado()
+    + String Processamento(Pedido pedido)
+}
+
+class Pedido {
+    - PedidoEstado processoAtual
+    + Pedido()
+    - configurarCadeiaDeEstados()
+    + PedidoEstado getProcessoAtual()
+    + void setProcessoAtual(PedidoEstado processoAtual)
+    + void updateEstado()
+    + String iniciarProcessamentoCadeia()
+    + String toString()
+}
+
+class Usuario {
+    - String nome
+    - String ultimaNotificacao
+    + Usuario(String nome)
+    + String getNome()
+    + void setNome(String nome)
+    + String getUltimaNotificacao()
+    + void pedir(Pedido pedido)
+    + void update(Observable pedido, Object arg1)
+}
+
+
+' Relações
+
+' Herança (Generalização)
+PedidoEstado <|-- PedidoEmProcesso
+PedidoEstado <|-- PedidoEmPreparo
+PedidoEstado <|-- PedidoEmTransporte
+PedidoEstado <|-- PedidoEntregue
+
+' Associações
+
+' State Pattern: Pedido tem uma referência para PedidoEstado
+Pedido "1" *-- "1" PedidoEstado : processoAtual
+
+' Chain of Responsibility: PedidoEstado se encadeia com outro PedidoEstado
+PedidoEstado "1" -- "0..1" PedidoEstado : proximoEstadoNaCadeia >
+
+' Observer Pattern: Pedido é Observável, Usuario é Observador
+java.util.Observable <|-- Pedido
+java.util.Observer <|.. Usuario
+Pedido "1" o-- "*" Usuario : observers (adiciona/notifica)
+
+' Outras dependências/associações
+Pedido ..> PedidoEmProcesso : <<create>> (no construtor/configuração)
+Pedido ..> PedidoEmPreparo : (configuração da cadeia)
+Pedido ..> PedidoEmTransporte : (configuração da cadeia)
+Pedido ..> PedidoEntregue : (configuração da cadeia)
+
+@enduml
