@@ -1,102 +1,115 @@
 @startuml
-!theme toy
+!define interfaceStyle class
 
-' Define as classes
-
+' Classes de Estado do Pedido
 abstract class PedidoEstado {
-    # PedidoEstado proximoEstadoNaCadeia
-    + {abstract} String getEstado()
-    + void setProximoEstadoNaCadeia(PedidoEstado proximoEstado)
-    + String Processamento(Pedido pedido)
-    + String processar(Pedido pedido)
-    + String preparar(Pedido pedido)
-    + String transportar(Pedido pedido)
-    + String entregue(Pedido pedido)
+    + {static} getInstance()
+    + getEstado(): String
+    + Processamento(pedido: Pedido): String
+    + setProximoEstadoNaCadeia(estado: PedidoEstado)
+    ' Métodos específicos de cada estado, se houver
+    + preparar(pedido: Pedido): String
+    + transportar(pedido: Pedido): String
+    + entregue(pedido: Pedido): String
 }
 
 class PedidoEmProcesso {
-    - static PedidoEmProcesso instance
+    - {static} instance
     - PedidoEmProcesso()
-    + static PedidoEmProcesso getInstance()
-    + String getEstado()
-    + String Processamento(Pedido pedido)
-    + String preparar(Pedido pedido)
+    + {static} getInstance(): PedidoEmProcesso
+    + getEstado(): String
+    + Processamento(pedido: Pedido): String
+    + preparar(pedido: Pedido): String
 }
 
 class PedidoEmPreparo {
-    - static PedidoEmPreparo instance
+    - {static} instance
     - PedidoEmPreparo()
-    + static PedidoEmPreparo getInstance()
-    + String getEstado()
-    + String Processamento(Pedido pedido)
-    + String transportar(Pedido pedido)
+    + {static} getInstance(): PedidoEmPreparo
+    + getEstado(): String
+    + Processamento(pedido: Pedido): String
+    + transportar(pedido: Pedido): String
 }
 
 class PedidoEmTransporte {
-    - static PedidoEmTransporte instance
+    - {static} instance
     - PedidoEmTransporte()
-    + static PedidoEmTransporte getInstance()
-    + String getEstado()
-    + String Processamento(Pedido pedido)
-    + String entregue(Pedido pedido)
+    + {static} getInstance(): PedidoEmTransporte
+    + getEstado(): String
+    + Processamento(pedido: Pedido): String
+    + entregue(pedido: Pedido): String
 }
 
 class PedidoEntregue {
-    - static PedidoEntregue instance
+    - {static} instance
     - PedidoEntregue()
-    + static PedidoEntregue getInstance()
-    + String getEstado()
-    + String Processamento(Pedido pedido)
+    + {static} getInstance(): PedidoEntregue
+    + getEstado(): String
+    + Processamento(pedido: Pedido): String
 }
 
+' Classes de Forma de Pagamento
+interface FormaPagamento {
+    + tipoPagamento(): String
+}
+
+class FormaCartaoCredito {
+    + tipoPagamento(): String
+}
+
+class FormaCartaoDebito {
+    + tipoPagamento(): String
+}
+
+class FormaPix {
+    + tipoPagamento(): String
+}
+
+class FormaSaldoConta {
+    + tipoPagamento(): String
+}
+
+' Classe Pedido
 class Pedido {
-    - PedidoEstado processoAtual
-    + Pedido()
+    - processoAtual: PedidoEstado
+    - usuario: Usuario
+    - formaPagamento: FormaPagamento
+    + Pedido(usuario: Usuario)
     - configurarCadeiaDeEstados()
-    + PedidoEstado getProcessoAtual()
-    + void setProcessoAtual(PedidoEstado processoAtual)
-    + void updateEstado()
-    + String iniciarProcessamentoCadeia()
-    + String toString()
+    + getProcessoAtual(): PedidoEstado
+    + setProcessoAtual(processoAtual: PedidoEstado)
+    + updateEstado()
+    + iniciarProcessamentoCadeia(): String
+    + tipoPagamento(formaPagamento: FormaPagamento): String
+    + toString(): String
 }
 
 class Usuario {
-    - String nome
-    - String ultimaNotificacao
-    + Usuario(String nome)
-    + String getNome()
-    + void setNome(String nome)
-    + String getUltimaNotificacao()
-    + void pedir(Pedido pedido)
-    + void update(Observable pedido, Object arg1)
+    - nome: String
+    - ultimaNotificacao: String
+    + Usuario(nome: String)
+    + getUltimaNotificacao(): String
+    + update(o: Observable, arg: Object)
 }
 
+PedidoEmProcesso --|> PedidoEstado
+PedidoEmPreparo --|> PedidoEstado
+PedidoEmTransporte --|> PedidoEstado
+PedidoEntregue --|> PedidoEstado
 
-' Relações
+FormaCartaoCredito ..|> FormaPagamento
+FormaCartaoDebito ..|> FormaPagamento
+FormaPix ..|> FormaPagamento
+FormaSaldoConta ..|> FormaPagamento
 
-' Herança (Generalização)
-PedidoEstado <|-- PedidoEmProcesso
-PedidoEstado <|-- PedidoEmPreparo
-PedidoEstado <|-- PedidoEmTransporte
-PedidoEstado <|-- PedidoEntregue
+Pedido "1" *-- "1" PedidoEstado
+Pedido "1" --> "1" Usuario
+Pedido "1" -- "1" FormaPagamento
+PedidoEstado "1" -- "1" PedidoEstado
 
-' Associações
 
-' State Pattern: Pedido tem uma referência para PedidoEstado
-Pedido "1" *-- "1" PedidoEstado : processoAtual
-
-' Chain of Responsibility: PedidoEstado se encadeia com outro PedidoEstado
-PedidoEstado "1" -- "0..1" PedidoEstado : proximoEstadoNaCadeia >
-
-' Observer Pattern: Pedido é Observável, Usuario é Observador
 java.util.Observable <|-- Pedido
-java.util.Observer <|.. Usuario
-Pedido "1" o-- "*" Usuario : observers (adiciona/notifica)
 
-' Outras dependências/associações
-Pedido ..> PedidoEmProcesso : <<create>> (no construtor/configuração)
-Pedido ..> PedidoEmPreparo : (configuração da cadeia)
-Pedido ..> PedidoEmTransporte : (configuração da cadeia)
-Pedido ..> PedidoEntregue : (configuração da cadeia)
+java.util.Observer <|-- Usuario
 
 @enduml

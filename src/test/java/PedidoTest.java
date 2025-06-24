@@ -10,8 +10,8 @@ class PedidoTest {
 
     @BeforeEach
     void setUp() {
-        pedido = new Pedido();
         usuario = new Usuario("João");
+        pedido = new Pedido(usuario);
         usuario.pedir(pedido);
     }
 
@@ -29,5 +29,33 @@ class PedidoTest {
 
         assertEquals("Seu pedido foi entregue", pedido.toString());
         assertEquals("Seu pedido foi entregue", usuario.getUltimaNotificacao());
+    }
+
+    @Test
+    void deveRetornarPagamentoCartaoCredito() {
+        FormaPagamento cartaoCredito = new FormaCartaoCredito();
+        String tipo = pedido.tipoPagamento(cartaoCredito);
+        assertEquals("Pagamento feito por cartão de Crédito", tipo);
+    }
+
+    @Test
+    void deveRetornarPagamentoCartaoDebito() {
+        FormaPagamento cartaoDebito = new FormaCartaoDebito();
+        String tipo = pedido.tipoPagamento(cartaoDebito);
+        assertEquals("Pagamento feito por cartão de Débito", tipo);
+    }
+
+    @Test
+    void deveRetornarPagamentoPix() {
+        FormaPagamento pix = new FormaPix();
+        String tipo = pedido.tipoPagamento(pix);
+        assertEquals("Pagamento feito por Pix", tipo);
+    }
+
+    @Test
+    void deveRetornarPagamentoSaldoConta() {
+        FormaPagamento saldoConta = new FormaSaldoConta();
+        String tipo = pedido.tipoPagamento(saldoConta);
+        assertEquals("Pagamento feito por Saldo existente em Conta", tipo);
     }
 }

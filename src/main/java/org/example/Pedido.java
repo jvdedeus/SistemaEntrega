@@ -6,6 +6,7 @@ public class Pedido extends Observable {
 
     private PedidoEstado processoAtual;
     private Usuario usuario;
+    private FormaPagamento formaPagamento;
 
     public Pedido(Usuario usuario){
         this.processoAtual = PedidoEmProcesso.getInstance();
@@ -34,6 +35,10 @@ public class Pedido extends Observable {
 
     public String iniciarProcessamentoCadeia() {
         return this.processoAtual.Processamento(this);
+    }
+
+    public String tipoPagamento(FormaPagamento formaPagamento){
+        return formaPagamento.tipoPagamento();
     }
 
     @Override

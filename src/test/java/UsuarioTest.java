@@ -12,7 +12,7 @@ class UsuarioTest {
     @BeforeEach
     void setUp() {
         usuario = new Usuario("Ana");
-        pedido = new Pedido();
+        pedido = new Pedido(usuario);
     }
 
     @Test
@@ -30,8 +30,7 @@ class UsuarioTest {
 
     @Test
     void naoDeveRetornarNotificacaoSeNaoEstiverSendoObservado() {
-        // Não adiciona o usuário como observador do pedido
-        Pedido outroPedido = new Pedido();
+        Pedido outroPedido = new Pedido(usuario);
         outroPedido.iniciarProcessamentoCadeia();
         assertNull(usuario.getUltimaNotificacao());
     }
