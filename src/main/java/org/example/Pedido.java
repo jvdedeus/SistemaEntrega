@@ -5,9 +5,11 @@ import java.util.Observable;
 public class Pedido extends Observable {
 
     private PedidoEstado processoAtual;
+    private Usuario usuario;
 
-    public Pedido(){
+    public Pedido(Usuario usuario){
         this.processoAtual = PedidoEmProcesso.getInstance();
+        this.usuario = usuario;
         configurarCadeiaDeEstados();
     }
 
