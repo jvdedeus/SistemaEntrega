@@ -2,37 +2,22 @@ package org.example;
 
 public class PedidoEmTransporte extends PedidoEstado {
 
-    private PedidoEmTransporte() {};
+    private PedidoEmTransporte() {}
     private static PedidoEmTransporte instance = new PedidoEmTransporte();
-    public static PedidoEmTransporte getInstance(){
+    public static PedidoEmTransporte getInstance() {
         return instance;
     }
 
     @Override
-    public String getEstado(){
-        return "Seu pedido está à caminho";
+    protected void transportarPedido(Pedido pedido) {
+        pedido.setMensagem("Restaurante transportando o pedido.");
     }
 
     @Override
-    public String Processamento(Pedido pedido) {
-        String mensagem = pedido.getProcessoAtual().getEstado();
-        if (true) {
-            mensagem += "\nPedido entregue.";
-            pedido.setProcessoAtual(PedidoEntregue.getInstance());
-            pedido.updateEstado();
-
-            if (this.proximoEstadoNaCadeia != null) {
-                mensagem += "\n" + this.proximoEstadoNaCadeia.Processamento(pedido);
-            }
-            return mensagem;
-        } else {
-            mensagem += "\nFalha na entrega do pedido.";
-            return mensagem;
+    protected String finalizarPedido(Pedido pedido) {
+        if (proximoEstadoNaCadeia != null) {
+            return proximoEstadoNaCadeia.processar(pedido);
         }
-    }
-
-    @Override
-    public String entregue(Pedido pedido){
-        return Processamento(pedido);
+        return "Pedido entregue ou cancelado.";
     }
 }

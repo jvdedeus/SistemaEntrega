@@ -1,37 +1,27 @@
-import org.example.Pedido;
+import org.example.Endereco;
 import org.example.Usuario;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-class UsuarioTest {
-
-    private Usuario usuario;
-    private Pedido pedido;
-
-    @BeforeEach
-    void setUp() {
-        usuario = new Usuario("Ana");
-        pedido = new Pedido(usuario);
-    }
-
+public class UsuarioTest {
     @Test
-    void deveRetornarNomeCerto() {
-        assertEquals("Ana", usuario.getNome());
-    }
+    public void testCloneSuccess() {
+        Endereco endereco = new Endereco.Builder()
+            .setRua("Rua A")
+            .setNumero("123")
+            .setCidade("CidadeX")
+            .setEstado("EstadoY")
+            .setCep("00000-000")
+            .build();
+        Usuario usuarioOriginal = new Usuario.Builder()
+            .setNome("João")
+            .setEndereco(endereco)
+            .build();
+        Usuario usuarioClonado = usuarioOriginal.clone();
 
-    @Test
-    void deveRetornarNotificacaoQuandoPedidoAtualiza() {
-        usuario.pedir(pedido);
-        pedido.iniciarProcessamentoCadeia();
-
-        assertEquals("Seu pedido foi entregue", usuario.getUltimaNotificacao());
-    }
-
-    @Test
-    void naoDeveRetornarNotificacaoSeNaoEstiverSendoObservado() {
-        Pedido outroPedido = new Pedido(usuario);
-        outroPedido.iniciarProcessamentoCadeia();
-        assertNull(usuario.getUltimaNotificacao());
+        assertNotSame(usuarioOriginal, usuarioClonado);
+        assertEquals(usuarioOriginal.getNome(), usuarioClonado.getNome());
+        assertNotSame(usuarioOriginal.getEndereco(), usuarioClonado.getEndereco());
+        assertEquals(usuarioOriginal.getEndereco().getRua(), usuarioClonado.getEndereco().getRua());
     }
 }

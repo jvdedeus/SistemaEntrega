@@ -1,115 +1,66 @@
 @startuml
-!define interfaceStyle class
-
-' Classes de Estado do Pedido
-abstract class PedidoEstado {
-    + {static} getInstance()
-    + getEstado(): String
-    + Processamento(pedido: Pedido): String
-    + setProximoEstadoNaCadeia(estado: PedidoEstado)
-    ' Métodos específicos de cada estado, se houver
-    + preparar(pedido: Pedido): String
-    + transportar(pedido: Pedido): String
-    + entregue(pedido: Pedido): String
-}
-
-class PedidoEmProcesso {
-    - {static} instance
-    - PedidoEmProcesso()
-    + {static} getInstance(): PedidoEmProcesso
-    + getEstado(): String
-    + Processamento(pedido: Pedido): String
-    + preparar(pedido: Pedido): String
-}
-
-class PedidoEmPreparo {
-    - {static} instance
-    - PedidoEmPreparo()
-    + {static} getInstance(): PedidoEmPreparo
-    + getEstado(): String
-    + Processamento(pedido: Pedido): String
-    + transportar(pedido: Pedido): String
-}
-
-class PedidoEmTransporte {
-    - {static} instance
-    - PedidoEmTransporte()
-    + {static} getInstance(): PedidoEmTransporte
-    + getEstado(): String
-    + Processamento(pedido: Pedido): String
-    + entregue(pedido: Pedido): String
-}
-
-class PedidoEntregue {
-    - {static} instance
-    - PedidoEntregue()
-    + {static} getInstance(): PedidoEntregue
-    + getEstado(): String
-    + Processamento(pedido: Pedido): String
-}
-
-' Classes de Forma de Pagamento
-interface FormaPagamento {
-    + tipoPagamento(): String
-}
-
-class FormaCartaoCredito {
-    + tipoPagamento(): String
-}
-
-class FormaCartaoDebito {
-    + tipoPagamento(): String
-}
-
-class FormaPix {
-    + tipoPagamento(): String
-}
-
-class FormaSaldoConta {
-    + tipoPagamento(): String
-}
-
-' Classe Pedido
-class Pedido {
-    - processoAtual: PedidoEstado
-    - usuario: Usuario
-    - formaPagamento: FormaPagamento
-    + Pedido(usuario: Usuario)
-    - configurarCadeiaDeEstados()
-    + getProcessoAtual(): PedidoEstado
-    + setProcessoAtual(processoAtual: PedidoEstado)
-    + updateEstado()
-    + iniciarProcessamentoCadeia(): String
-    + tipoPagamento(formaPagamento: FormaPagamento): String
-    + toString(): String
-}
-
-class Usuario {
-    - nome: String
-    - ultimaNotificacao: String
-    + Usuario(nome: String)
-    + getUltimaNotificacao(): String
-    + update(o: Observable, arg: Object)
-}
-
+' Estados do Pedido (State + Singleton)
+abstract class PedidoEstado
+class PedidoEmProcesso
+class PedidoEmPreparo
+class PedidoEmTransporte
+class PedidoEntregue
 PedidoEmProcesso --|> PedidoEstado
 PedidoEmPreparo --|> PedidoEstado
 PedidoEmTransporte --|> PedidoEstado
 PedidoEntregue --|> PedidoEstado
 
+' Pedido
+class Pedido {
+    - processoAtual: PedidoEstado
+    - usuario: Usuario
+    - formaPagamento: FormaPagamento
+    - valorTotal: double
+    - desconto: Desconto
+}
+Pedido *-- PedidoEstado
+Pedido --> Usuario
+Pedido --> FormaPagamento
+Pedido --> Desconto
+
+' Usuario e Endereco (Builder e Prototype)
+class Usuario {
+    - nome: String
+    - endereco: Endereco
+}
+Usuario --> Endereco
+
+class Endereco
+
+' Forma de Pagamento (Strategy)
+interface FormaPagamento
+class FormaCartaoCredito
+class FormaCartaoDebito
+class FormaPix
 FormaCartaoCredito ..|> FormaPagamento
 FormaCartaoDebito ..|> FormaPagamento
 FormaPix ..|> FormaPagamento
-FormaSaldoConta ..|> FormaPagamento
 
-Pedido "1" *-- "1" PedidoEstado
-Pedido "1" --> "1" Usuario
-Pedido "1" -- "1" FormaPagamento
-PedidoEstado "1" -- "1" PedidoEstado
+' Desconto (Decorator + Factory)
+interface Desconto
+abstract class DescontoDecorator
+class CupomDesconto10
+class CupomDesconto15
+class CupomDesconto20
+class DescontoPercentual
+class SemDesconto
+DescontoDecorator ..|> Desconto
+CupomDesconto10 ..|> Desconto
+CupomDesconto15 ..|> Desconto
+CupomDesconto20 ..|> Desconto
+DescontoPercentual ..|> Desconto
+SemDesconto ..|> Desconto
 
+class DescontoFactory
+DescontoFactory --> Desconto
+DescontoFactory ..> TipoDesconto
 
-java.util.Observable <|-- Pedido
-
-java.util.Observer <|-- Usuario
+' Enum para tipos de desconto
+enum TipoDesconto
 
 @enduml

@@ -5,4 +5,9 @@ public class FormaCartaoCredito implements FormaPagamento{
     public String tipoPagamento() {
         return "Pagamento feito por cartão de Crédito";
     }
+
+    @Override
+    public double getTaxa() {
+        return 0.05;
+    }
 }

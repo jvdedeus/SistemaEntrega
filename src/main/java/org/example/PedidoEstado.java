@@ -2,34 +2,41 @@ package org.example;
 
 public abstract class PedidoEstado {
 
-    public PedidoEstado proximoEstadoNaCadeia;
+    protected PedidoEstado proximoEstadoNaCadeia;
 
-    public abstract String getEstado();
-
-    public void setProximoEstadoNaCadeia(PedidoEstado proximoEstado) {
-        this.proximoEstadoNaCadeia = proximoEstado;
+    public void setProximoEstadoNaCadeia(PedidoEstado proximo) {
+        this.proximoEstadoNaCadeia = proximo;
     }
 
-    public String Processamento(Pedido pedido) {
-        if (proximoEstadoNaCadeia != null) {
-            return proximoEstadoNaCadeia.Processamento(pedido);
-        }
-        return "Não existe próximo processo";
+    public final String processar(Pedido pedido) {
+        prepararPedido(pedido);
+        processarPedido(pedido);
+        transportarPedido(pedido);
+        return finalizarPedido(pedido);
     }
 
-    public String processar(Pedido pedido){
-        return Processamento(pedido);
+    protected void prepararPedido(Pedido pedido) {}
+    protected void processarPedido(Pedido pedido) {}
+    protected void transportarPedido(Pedido pedido) {}
+    protected String finalizarPedido(Pedido pedido) { return "Pedido entregue ou cancelado."; }
+
+    public Boolean processar(){
+        return false;
     }
 
-    public String preparar(Pedido pedido){
-        return Processamento(pedido);
+    public Boolean preparar(){
+        return false;
     }
 
-    public String transportar(Pedido pedido){
-        return Processamento(pedido);
+    public Boolean transportar(){
+        return false;
     }
 
-    public String entregue(Pedido pedido){
-        return Processamento(pedido);
+    public Boolean entregue(){
+        return false;
+    }
+
+    public PedidoEstado getProximoEstadoNaCadeia() {
+        return proximoEstadoNaCadeia;
     }
 }

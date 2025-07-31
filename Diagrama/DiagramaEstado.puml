@@ -1,0 +1,7 @@
+@startuml
+[*] --> EmProcesso
+EmProcesso --> EmPreparo : iniciar preparo
+EmPreparo --> EmTransporte : enviar para entrega
+EmTransporte --> Entregue : entregar pedido
+Entregue --> [*]
+@enduml
